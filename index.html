@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>PanelServerTest</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery.min.js"></script>
+</head>
+<body>
+
+<script>
+	$(document).ready(function() {
+
+		var socket = io.connect();
+
+		// on an update message, grab the sync up the layout state
+		socket.on('update', function (data) {
+			for (i in data) {
+				setItemState(data[i]["id"],data[i]["state"]);
+			}
+		});
+
+		// attach a click handler to every fnord
+		$("div.fnord").click(function(event) {
+			socket.emit('click', { click: event.target.id });
+			event.preventDefault();
+		});
+	});
+
+
+function setItemState(itemId,itemState) {
+	var theElement = document.getElementById(itemId);
+	
+	if (theElement) {
+		if (itemState == "thrown") {
+			theElement.style.color = 'red';
+		} else {
+			theElement.style.color = 'green';
+		}
+	}
+}
+
+</script>
+
+<div class="fnord" id="100">
+Here is a div to click...<br />
+</div>
+<br />
+<div class="fnord" id="101">
+Here is another div to click...<br />
+</div>
+
+</body>
+</html>
