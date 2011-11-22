@@ -3,6 +3,9 @@
 <head>
 	<meta charset="utf-8" />
 	<title>PanelServerTest</title>
+	<style>
+	  .disconnected { background:blue; }
+	</style>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="http://code.jquery.com/jquery.min.js"></script>
 </head>
@@ -19,6 +22,11 @@
 				setItemState(data[i]["id"],data[i]["state"]);
 			}
 		});
+		
+		socket.on('disconnect', function () {
+			$("body").addClass('disconnected')
+		});
+
 
 		// attach a click handler to every fnord
 		$("div.fnord").click(function(event) {
