@@ -16,6 +16,10 @@
 
 		var socket = io.connect();
 
+		socket.on('connect', function () {
+			$("body").removeClass('disconnected')
+		});
+
 		// on an update message, grab the sync up the layout state
 		socket.on('update', function (data) {
 			for (i in data) {
@@ -50,11 +54,11 @@ function setItemState(itemId,itemState) {
 
 </script>
 
-<div class="fnord" id="100">
+<div class="fnord" id="t100">
 Here is a div to click...<br />
 </div>
 <br />
-<div class="fnord" id="101">
+<div class="fnord" id="t101">
 Here is another div to click...<br />
 </div>
 

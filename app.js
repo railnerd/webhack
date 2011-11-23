@@ -12,9 +12,9 @@
 //	for now we're just going to use a javascript array of objects for this demo.
 
 var layoutState = [
-	{id:100,state:'thrown'},
-	{id:101,state:'normal'},
-	{id:102,state:'normal'}
+	{id:'t100',state:'thrown'},
+	{id:'t101',state:'normal'},
+	{id:'t102',state:'normal'}
 	];
 
 
