@@ -24,9 +24,8 @@ var layoutState = [
 //	or worst case Adobe Flash sockets (ick).
 
 var app = require('express').createServer()
-  , io = require('socket.io').listen(app)
-  , mdns = require('mdns');
-
+  , io = require('socket.io').listen(app);
+  
 //	Our server running on port 3000, wand for now serves up a single index.html file.
 //	It can clearly be extended to serve up a plethora of other resources.
 
@@ -35,9 +34,6 @@ app.get('/', function (req, res) {
 });
 
 app.listen(3000);
-
-// register the server via mdns
-mdns.createAdvertisement('http', 3000).start();
 
 
 //	socket.io Callbacks
