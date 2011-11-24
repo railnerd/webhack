@@ -23,8 +23,8 @@ var layoutState = [
 //	package which supports connections via WebSockets, long-lived XMLHttpRequests,
 //	or worst case Adobe Flash sockets (ick).
 
-var app = require('express').createServer()
-  , io = require('socket.io').listen(app);
+var app = require('express').createServer();
+var io = require('socket.io').listen(app);
   
 //	Our server running on port 3000, wand for now serves up a single index.html file.
 //	It can clearly be extended to serve up a plethora of other resources.
@@ -44,32 +44,28 @@ app.listen(3000);
 //	Whenever a client connects, it is given a copy of the entire layout state, and
 //	a callback is installed for that client which allows individual elements to be
 //	"clicked" via a JSON blob send from client to server. In response to the click,
-//	the server broadcasts the new layout state back to ALL clients.
+//	the server broadcasts the changed state back to ALL clients.
 //
 //	NOTE: In the real world case, the client should indicate what subset of the state
 //	they are interested in, but for now we just give every client the full state.
 
 io.sockets.on('connection', function (socket) {
 
-	// whenever a new client connects, just send the entire layout state
+	// whenever a new client connects, send the entire layout state
 	socket.emit('update', layoutState);
 
 	// Install a callback for whenever a client sends a 'click' message. In a the real
 	// implementation, we would most likely support primitives like "get/set" instead.
 		
 	socket.on('click',
-	  	function (data) {
+	  	function parseClickMessage(data) {
+	  		var changedState = [];
 
-			// For now, data is a JSON object of the form "{'click':<id>}"
-
+			// Incomming data is a JSON object of the form "{'click':<id>}"
 	  		var clickTargetId = data['click'];
 	  		
 	  		// Walk through the layoutState array to toggle the state
-	  		//
-	  		// Yes, this is brain-dead, but the idea here is to demonstrate the use of the
-	  		// socket.io framework capabilities to accept requests and broadcast changes
-	  		// to all clients.
-	  		
+	  			  		
 			for (i in layoutState) {
 				if (layoutState[i].id == clickTargetId) {
 					if (layoutState[i].state == 'thrown') {
@@ -77,19 +73,16 @@ io.sockets.on('connection', function (socket) {
 					} else {
 						layoutState[i].state = 'thrown';
 					}
+					changedState.push(layoutState[i]);
 				}
 			}
-		
-			// Broadcast new layout state to all the clients. For this hack, we are
-			// sending the full state, but we only need to send an array of changed
-			// layout elements.
 
-			socket.broadcast.emit('update', layoutState);
+			// Send the changed layout elements to all the clients.
+			socket.broadcast.emit('update', changedState);
 
 			// NOTE: We need to specifically reply to the requesting client,
 			// because socket.broadcast.emit skips that by default.
-
-			socket.emit('update', layoutState);
+			socket.emit('update', changedState);
 		}
 	);
 
