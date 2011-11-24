@@ -15,7 +15,7 @@ var layoutState = [
   {id:'t100',state:'thrown'},
   {id:'t101',state:'normal'},
   {id:'t102',state:'normal'}
-  ];
+];
 
 
 //  Our HTTP server is just an Express web server object fused with a socket.io
@@ -57,15 +57,13 @@ io.sockets.on('connection', function (socket) {
   // Install a callback for whenever a client sends a 'click' message. In a the real
   // implementation, we would most likely support primitives like "get/set" instead.
     
-  socket.on('click',
-      function parseClickMessage(data) {
-        var changedState = [];
+  socket.on('click',function parseClickMessage(data) {
+      var changedState = [];
 
       // Incomming data is a JSON object of the form "{'click':<id>}"
-        var clickTargetId = data['click'];
+      var clickTargetId = data['click'];
         
-        // Walk through the layoutState array to toggle the state
-                
+      // Walk through the layoutState array to toggle the state               
       for (i in layoutState) {
         if (layoutState[i].id == clickTargetId) {
           if (layoutState[i].state == 'thrown') {
