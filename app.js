@@ -49,6 +49,15 @@ app.listen(3000);
 //  NOTE: In the real world case, the client should indicate what subset of the state
 //  they are interested in, but for now we just give every client the full state.
 
+io.configure('production', function(){
+  io.enable('browser client etag');	// enable caching
+  io.set('log level', 1);			// disable logs
+});
+
+io.configure('development', function(){
+  io.set('transports', ['websocket']);
+});
+
 io.sockets.on('connection', function (socket) {
 
   // whenever a new client connects, send the entire layout state
