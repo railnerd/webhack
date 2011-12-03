@@ -50,8 +50,10 @@ app.listen(3000);
 //  they are interested in, but for now we just give every client the full state.
 
 io.configure('production', function(){
-  io.enable('browser client etag');	// enable caching
-  io.set('log level', 1);			// disable logs
+  io.enable('browser client minification');  // send minified client
+  io.enable('browser client etag');          // enable caching
+  io.enable('browser client gzip');          // gzip the file
+  io.set('log level', 1);                    // disable debug logs
 });
 
 io.configure('development', function(){
