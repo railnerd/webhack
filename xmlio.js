@@ -1,9 +1,9 @@
-// JMRI xmlio testing
+// JMRI xmlio testing, will get converted into a module eventually
 
 var http = require('http');
 var parser = require('xml2json');
 
-var xmlIOTest = {'xmlio':{'list':{'type':'turnout'}}};
+var xmlIOTest = {'xmlio':{'list':{'type':'sensor'}}};
 
 var postData = parser.toXml(xmlIOTest);
 

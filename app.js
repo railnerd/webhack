@@ -23,14 +23,16 @@ var layoutState = [
 //  package which supports connections via WebSockets, long-lived XMLHttpRequests,
 //  or worst case Adobe Flash sockets (ick).
 
-var app = require('express').createServer();
+var express = require('express')
+var app = express.createServer();
 var io = require('socket.io').listen(app);
-  
-//  Our server running on port 3000, wand for now serves up a single index.html file.
-//  It can clearly be extended to serve up a plethora of other resources.
 
-app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
+//  Our server running on port 3000, and we'll serve up static files for now.
+
+app.configure( function() {
+  app.use(express.logger());
+  app.use(express.bodyParser());
+  app.use(express.static(__dirname+"/static"));
 });
 
 app.listen(3000);
