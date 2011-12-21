@@ -26,7 +26,7 @@ var layoutState = [
 var express = require('express')
 var app = express.createServer();
 var io = require('socket.io').listen(app);
-var xmlio = require('./xmlio.js');
+var jmri = require('./jmri.js');
 
 //  Our server running on port 3000, and we'll serve up static files for now.
 
@@ -104,7 +104,7 @@ io.sockets.on('connection', function (socket) {
         var turnoutName = changedState[i].id;
 
         // talk to the jmri server
-        xmlio.jmriRequest('localhost',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
+        jmri.xmlioRequest('localhost',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
           console.log('got '+data);
         });
 
