@@ -86,7 +86,7 @@ io.sockets.on('connection', function (socket) {
 
       // Incomming data is a JSON object of the form "{'click':<id>}"
       var clickTargetId = data['click'];
-        
+
       // Walk through the layoutState array to toggle the state               
       for (i in layoutState) {
         if (layoutState[i].id == clickTargetId) {
@@ -98,19 +98,18 @@ io.sockets.on('connection', function (socket) {
           changedState.push(layoutState[i]);
         }
       }
-      
+
       for (i in changedState) {
-		var turnoutState = (changedState[i].state === 'normal' ? '2' : '4');
-      	var turnoutName = changedState[i].id;
+        var turnoutState = (changedState[i].state === 'normal' ? '2' : '4');
+        var turnoutName = changedState[i].id;
 
         // talk to the jmri server
         xmlio.jmriRequest('localhost',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
-        	console.log('got '+data);
+          console.log('got '+data);
         });
 
       }
-      
-      
+
       // Send the changed layout elements to all the clients.
       socket.broadcast.emit('update', changedState);
 
