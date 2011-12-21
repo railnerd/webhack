@@ -1,0 +1,11 @@
+{
+  "name": "webhack",
+  "description": "a webhack",
+  "version": "0.0.1",
+
+  "dependencies": {
+    "express": ">= 2.5.2",
+    "socket.io": ">= 0.8.7",
+    "xml2json": ">= 0.2.4"
+  }
+}
