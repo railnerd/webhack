@@ -1,7 +1,7 @@
 var http = require('http');
 var parser = require('xml2json');
 
-function jmriRequest(host,port,parms,callback) {
+function xmlioRequest(host,port,parms,callback) {
 
 	var postData = parser.toXml(parms);
 	var postOptions = {
@@ -42,4 +42,4 @@ function jmriRequest(host,port,parms,callback) {
 	req.end();
 }
 
-exports.jmriRequest = jmriRequest;
+exports.xmlioRequest = xmlioRequest;
