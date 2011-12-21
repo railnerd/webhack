@@ -12,9 +12,9 @@
 //  for now we're just going to use a javascript array of objects for this demo.
 
 var layoutState = [
-  {id:'t100',state:'thrown'},
-  {id:'t101',state:'normal'},
-  {id:'t102',state:'normal'}
+  {id:'IT1',state:'thrown'},
+  {id:'IT2',state:'normal'},
+  {id:'IT3',state:'normal'}
 ];
 
 
@@ -26,6 +26,7 @@ var layoutState = [
 var express = require('express')
 var app = express.createServer();
 var io = require('socket.io').listen(app);
+var xmlio = require('./xmlio.js');
 
 //  Our server running on port 3000, and we'll serve up static files for now.
 
@@ -97,7 +98,19 @@ io.sockets.on('connection', function (socket) {
           changedState.push(layoutState[i]);
         }
       }
+      
+      for (i in changedState) {
+		var turnoutState = (changedState[i].state === 'normal' ? '2' : '4');
+      	var turnoutName = changedState[i].id;
 
+        // talk to the jmri server
+        xmlio.jmriRequest('localhost',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
+        	console.log('got '+data);
+        });
+
+      }
+      
+      
       // Send the changed layout elements to all the clients.
       socket.broadcast.emit('update', changedState);
 
