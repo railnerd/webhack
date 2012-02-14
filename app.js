@@ -12,9 +12,8 @@
 //  for now we're just going to use a javascript array of objects for this demo.
 
 var layoutState = [
-  {id:'IT1',state:'thrown'},
-  {id:'IT2',state:'normal'},
-  {id:'IT3',state:'normal'}
+  {id:'NT1',state:'thrown'},
+  {id:'NT2',state:'normal'},
 ];
 
 
@@ -104,7 +103,7 @@ io.sockets.on('connection', function (socket) {
         var turnoutName = changedState[i].id;
 
         // talk to the jmri server
-        jmri.xmlioRequest('localhost',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
+        jmri.xmlioRequest('10.0.0.25',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
           console.log('got '+data);
         });
 
