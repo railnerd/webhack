@@ -7,15 +7,9 @@
 
 //  Simplified layoutState
 //
-//  In our contrived example, we have 3 turnouts, with the following initial states.
-//  In the real world, this should or could be in a database or key-value server, but
-//  for now we're just going to use a javascript array of objects for this demo.
-
-var layoutState = [
-  {id:'NT1',state:'thrown'},
-  {id:'NT2',state:'normal'},
-];
-
+//  We're just going to have an array of state variables.  The variable/object name will be
+// index into the array.
+var layoutState = [];
 
 //  Our HTTP server is just an Express web server object fused with a socket.io
 //  server. The socket.io module is where most of the real magic lives, it is a
@@ -74,48 +68,58 @@ io.configure('development', function(){
 
 io.sockets.on('connection', function (socket) {
 
-  // whenever a new client connects, send the entire layout state
-  socket.emit('update', layoutState);
-
-  // Install a callback for whenever a client sends a 'click' message. In a the real
-  // implementation, we would most likely support primitives like "get/set" instead.
-    
-  socket.on('click',function parseClickMessage(data) {
-      var changedState = [];
-
-      // Incomming data is a JSON object of the form "{'click':<id>}"
-      var clickTargetId = data['click'];
-
-      // Walk through the layoutState array to toggle the state               
-      for (i in layoutState) {
-        if (layoutState[i].id == clickTargetId) {
-          if (layoutState[i].state == 'thrown') {
-            layoutState[i].state = 'normal';
-          } else {
-            layoutState[i].state = 'thrown';
-          }
-          changedState.push(layoutState[i]);
+    // Install a callback for whenever a client sends a 'click' message. In a the real
+    // implementation, we would most likely support primitives like "get/set" instead.
+    socket.on('panelToServer',function parsePanelMessage(data)
+    {
+        var updatedStates = [];
+        var requestingSocketReturnStates = [];
+            
+        var panelName = data.panelName;
+        var objectPayload = data.panelPayload;
+            
+        // Walk through the layoutState to see what changed
+        for (var i in objectPayload)
+        {
+            // if object not found or input value not null, accept new state
+            if((layoutState[objectPayload[i].name] == undefined) || (objectPayload[i].value != null))
+            {
+                layoutState[objectPayload[i].name] = objectPayload[i];
+                updatedStates.push(layoutState[objectPayload[i].name]);
+            }
+            
+            // Return server state of everything given to original client
+            requestingSocketReturnStates.push(layoutState[objectPayload[i].name]);
         }
-      }
+           
+        // for each changed object, handle appropriately (tell JMRI to do something as appropriate)
+        for (i in updatedStates)
+        {
+            // if new state is not null
+            if(layoutState[updatedStates[i].name].value != null)
+            {
+                var changedState = layoutState[updatedStates[i].name];
+            
+                // if object is of type turnout
+                if(changedState.type == "T")
+                {
+                    var turnoutState = (changedState.value === 'N' ? '2' : '4');
+                    var turnoutName = changedState.name;
 
-      for (i in changedState) {
-        var turnoutState = (changedState[i].state === 'normal' ? '2' : '4');
-        var turnoutName = changedState[i].id;
+                    // talk to the jmri server
+                    jmri.xmlioRequest('10.0.0.25',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
+                    console.log('got '+data);
+                    });
+                }
+            }
+        }
+        
+        // Send the changed layout elements back to all the clients (except the one that requested the state change).
+        if(updatedStates.length > 0)
+            socket.broadcast.emit('serverToPanel', { panelName:panelName, panelPayload:updatedStates } );
 
-        // talk to the jmri server
-        jmri.xmlioRequest('10.0.0.25',12080,{'xmlio':{'turnout':{'name':turnoutName,'set':turnoutState}}},function (data) {
-          console.log('got '+data);
-        });
-
-      }
-
-      // Send the changed layout elements to all the clients.
-      socket.broadcast.emit('update', changedState);
-
-      // NOTE: We need to specifically reply to the requesting client,
-      // because socket.broadcast.emit skips that by default.
-      socket.emit('update', changedState);
-    }
-  );
-
+        // NOTE: We need to specifically reply to the requesting client,
+        // because socket.broadcast.emit skips that by default.
+        socket.emit('serverToPanel', { panelName:panelName, panelPayload:requestingSocketReturnStates });
+    });
 });
